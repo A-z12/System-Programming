@@ -19,6 +19,7 @@
 #include "mld.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 char *DATA_TYPE[] = {"UINT8", "UINT32", "INT32",
 		     "CHAR", "OBJ_PTR", "FLOAT",
@@ -106,3 +107,152 @@ int add_structure_to_struct_db( struct_db_t *struct_db,
 	struct_db->count++;
 	return 0;
 }
+
+/* ----------------------------------------- */
+
+/* PHASE 2 ASSIGNMENT STARTS HERE */
+
+/* FUNCTION TO LOOK UP A PARTICULAR STRUCTURE
+   IN STRUCTURE DATABASE */
+struct_db_rec_t *struct_db_look_up( struct_db_t *struct_db, char *struct_name )
+{
+
+	if ( !struct_db )
+		return NULL;
+	
+	/* POINTING TEMP TO FIRST
+	   RECORD OF STRUCTURE DATABASE */
+	struct_db_rec_t *temp = struct_db->head;
+	
+	while ( temp != NULL )
+	{
+		if ( strcmp( temp->struct_name, struct_name ) == 0 )
+			return temp;
+		temp = temp->next;
+	}
+	
+	/* RETURN NULL IF STRUCTURE NAME
+	   NOT FOUND IN STRUCTURE DATABASE */
+	return NULL;
+}
+
+/* PHASE 2 ASSIGNMENT ENDS HERE */
+
+/* ----------------------------------------------- */
+
+/* PHASE 2 OBJECT DATABASE
+   STARTS HERE */
+
+/* XCALLOC API
+   STARTS HERE */
+
+static object_db_rec_t * // why static ?
+object_db_look_up( object_db_t *obj_db,
+		   void *ptr
+		)
+{
+	object_db_rec_t *tmp = obj_db->head;
+	
+	for( ; tmp; tmp = tmp->next )
+	{
+		if( ptr == tmp )
+			return tmp;
+	}
+	return NULL;
+}
+
+static void // why static ?
+add_object_to_object_db( object_db_t *object_db,
+			 void *ptr,
+			 int units,
+			 struct_db_rec_t *struct_rec 
+		 	)
+{
+	/* CHECKING WHETHER THIS OBJECT
+	   IS ALREADY PRESENT */
+	object_db_rec_t *obj_rec = object_db_look_up( object_db, ptr );
+	/* PREVENTING ADDITION OF SAME
+	   OBJECT TWICE */
+	assert( !obj_rec );
+
+	obj_rec = calloc( 1, sizeof( object_db_rec_t ) );
+	
+	obj_rec->next = NULL;
+	obj_rec->ptr = ptr;
+	obj_rec->units = units;
+	obj_rec->struct_rec = struct_rec;
+
+	/* ADDING FIRST RECORD IN
+	   OBJECT DATABASE */
+	if ( !object_db->head ) 
+	{
+		object_db->head = obj_rec;
+		object_db->count = 1;
+	}
+
+	/* ADDING MORE RECORDS IN
+	   OBJECT DATABASE */
+	else
+	{
+		obj_rec->next = object_db->head;
+		object_db->head = obj_rec;
+		object_db->count++;
+	}
+} 
+	
+void *
+xcalloc( object_db_t *object_db,
+	 char *struct_name,
+	 int units
+	)
+{
+	/*CHECKING WHETHER STRUCTURE EXISTS */
+	struct_db_rec_t *struct_rec=struct_db_look_up( object_db->struct_db, struct_name );
+	assert( struct_rec );
+
+	/* ALLOCATING MEMORY AND ADDING
+	   TO OBJECT DATABASE */
+	void *ptr = calloc( units, struct_rec->ds_size );
+	add_object_to_object_db( object_db, ptr, units, struct_rec );
+	return ptr;
+}
+
+/* XCALLOC API
+   ENDS HERE */
+
+/* DUMPING FUNCTIONS FOR 
+   OBJECT DATABASE */
+
+void print_object_rec( object_db_rec_t *obj_rec, int i )
+{
+	if( !obj_rec )
+		return;
+	
+        printf( " | %-5d | ", i );
+        printf( "%-10p | ", obj_rec->next );
+        printf( "%-5u | ", obj_rec->units );
+        printf( "%-25s | \n", obj_rec->struct_rec->struct_name );
+        
+	//printf( "%d %p %u %s\n", i, obj_rec->next, obj_rec->units, obj_rec->struct_rec->struct_name );
+}
+
+void print_object_db( object_db_t *object_db )
+{
+	object_db_rec_t *tmp = object_db->head;
+	unsigned int i = 0;
+	printf( "PRINTING OBJECT DATABASE\n" );
+	
+	/* HEADING OF DETAILS OF FIELDS */
+        printf( " ------------------------------------------------------------------------------\n");
+        printf( " | %-5s | ", "SNO" );
+        printf( "%-10s | ", "NEXT PTR" );
+        printf( "%-5s | ", "UNITS" );
+        printf( "%-25s | \n", "STRUCTURE NAME" );
+        printf( " ------------------------------------------------------------------------------\n");
+
+	for( ; tmp; tmp = tmp->next )
+		print_object_rec( tmp, i++ );
+}
+
+/* PHASE 2 OBJECT DATABASE
+   ENDS HERE */

@@ -1,5 +1,6 @@
 #ifndef __MLD__
 	#include<assert.h>
+#include<stdint.h>
 
 // Structure database definition begins 
 
@@ -20,7 +21,7 @@ typedef enum
 } data_type_t;
 
 #define OFFSETOF( struct_name, fld_name )	\
-	 (unsigned int)&((( struct_name *)0)->fld_name)
+	 (uintptr_t)&((( struct_name *)0)->fld_name)
 
 #define FIELD_SIZE( struct_name, fld_name )	\
 	sizeof(((struct_name *)0)->fld_name)
@@ -62,7 +63,7 @@ typedef struct _struct_db_
 
 void print_structure_rec ( struct_db_rec_t *struct_rec );
 
-void print_struct_ure_db ( struct_db_t *struct_db );
+void print_structure_db ( struct_db_t *struct_db );
 
 // Function to add structure record in a structure database
 
@@ -87,6 +88,39 @@ add_structure_to_struct_db(struct_db_t *struct_db, struct_db_rec_t *struct_rec);
 			assert(0);	\
 		}	\
 	}while(0);	\
+
+/* PHASE 2 ASSIGNMENT STARTS HERE */
+struct_db_rec_t *struct_db_look_up( struct_db_t *struct_db, char *struct_name );
+/* PHASE 2 ASSIGNMENT ENDS HERE */
+
+/* OBJECT DATABASE STRUCTURE DEFINITION
+   STARTS HERE */
+ 
+typedef struct _object_db_rec_ object_db_rec_t;
+
+struct _object_db_rec_
+{
+	object_db_rec_t *next;
+	void *ptr;
+	unsigned int units;
+	struct_db_rec_t *struct_rec;
+};
+
+typedef struct _object_db_
+{
+	struct_db_t *struct_db;
+	object_db_rec_t *head;
+	unsigned int count;
+}object_db_t;
+
+/* DUMPING FUNCTIONS */
+void print_object_rec( object_db_rec_t *obj_rec, int i ); // WHY i ?
+
+void print_object_db( object_db_t *object_db );
+
+/* API TO MALLOC
+   THE OBJECT */
+void *xcalloc( object_db_t *object_db, char *struct_name, int units );
 
 #endif
 

@@ -3,6 +3,7 @@
 #include "mld.h"
 #include <memory.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 /* EMPLOYEE STRUCTURE */
 typedef struct emp_
@@ -62,5 +63,27 @@ int main( int argc, char **argv )
 	/* PRINTING COMPLETE STRUCTURE DATABASE */
 	print_structure_db( struct_db );
 
-	return 0;
+	/* PHASE 2 ASSIGNMENT STARTS HERE */
+	printf( "\n PHASE 2 ASSIGNMNET STARTS HERE \n");
+
+	struct_db_rec_t *k =  struct_db_look_up ( struct_db, "emp_t" ) ;
+	
+	printf("%d\n", k->n_fields );
+	/* PHASE 2 ASSIGNMENT ENDS HERE */
+
+
+	/* PHASE 2 OBJECT DATABASE
+	   STARTS HERE */
+	/* STEP 1 : INITIALIZE A NEW
+	   OBJECT DATABASE */
+	object_db_t *object_db = calloc( 1, sizeof( object_db_t ) );	    object_db->struct_db = struct_db;
+	
+	/* STEP 2 : CREATE SOME SAMPLE OBJECTS */
+	student_t *david = xcalloc( object_db, "student_t", 1 );
+	student_t *abraham = xcalloc( object_db, "student_t", 1 );
+	emp_t *joseph = xcalloc( object_db, "emp_t", 2 );
+	/* STEP 3 : PRINTING OBJECT DATABASE */
+	print_object_db( object_db );
+	
+	return(0);
 }
