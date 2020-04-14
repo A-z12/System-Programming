@@ -122,5 +122,12 @@ void print_object_db( object_db_t *object_db );
    THE OBJECT */
 void *xcalloc( object_db_t *object_db, char *struct_name, int units );
 
+/* ASSIGNMENT 3 STARTS */
+void mld_dump_object_rec_detail( object_db_rec_t *obj_rec );
+
+int delete_object( object_db_t* object_db, object_db_rec_t* obj_rec  );
+
+int xfree ( void* ptr, object_db_t* object_db );
+
 #endif
 

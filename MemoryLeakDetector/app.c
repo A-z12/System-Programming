@@ -84,6 +84,67 @@ int main( int argc, char **argv )
 	emp_t *joseph = xcalloc( object_db, "emp_t", 2 );
 	/* STEP 3 : PRINTING OBJECT DATABASE */
 	print_object_db( object_db );
+
+	/* ASSIGNMENT 3 STARTS */
+	strcpy( david->stud_name, "David" );
+	david->rollno = 12;
+	david->age = 15;
+	david->aggregate = 450;
+	david->best_colleague = NULL;
+
+	strcpy( joseph[0].emp_name , "Joseph" );
+	joseph[0].emp_id = 1221;
+	joseph[0].age = 30;
+	joseph[0].mgr = NULL;
+	joseph[0].salary = 2000000;
+
+	strcpy( joseph[1].emp_name , "Ismael" );
+        joseph[1].emp_id = 1222;
+        joseph[1].age = 28;
+        joseph[1].mgr = NULL;
+        joseph[1].salary = 3000000;
+
+	strcpy( abraham->stud_name, "Abraham" );
+	abraham->rollno = 1;
+	abraham->age = 14;
+	abraham->best_colleague = david;
+	abraham->aggregate = 455;
+
+	printf("\n\n\n============== ASSIGNMENT 3 STARTS ========================\n\n");
+	
+	mld_dump_object_rec_detail( object_db->head );
+        mld_dump_object_rec_detail( object_db->head->next );
+        mld_dump_object_rec_detail( object_db->head->next->next );
+	
+	// xfree( void *ptr ) starts here //
+	
+	if ( xfree( abraham, object_db ) == 1 )
+		printf( "\n\nObject Abraham deleted\n\n" );
+
+	else
+		printf( "\n\nObject Abraham could not be deleted\n\n" );
+
+	mld_dump_object_rec_detail( object_db->head );
+	mld_dump_object_rec_detail( object_db->head->next );
+
+	if( xfree( joseph, object_db ) == 1 )
+		printf( "\n\nObject Joseph deleted\n\n" );
+	else
+		printf( "\n\nObject Joseph could not be deleted\n\n" );
+
+	mld_dump_object_rec_detail( object_db->head );
+
+		
+	if( xfree( david, object_db ) == 1 )
+                printf( "\n\nObject David deleted\n\n" );
+        else
+                printf( "\n\nObject David could not be deleted\n" );
+
+		
+	printf("\n============== ASSIGNMENT 3 ENDS ===========================\n\n\n");
+
+
+	/* ASSIGNMENT 3 ENDS */
 	
 	return(0);
 }

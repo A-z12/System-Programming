@@ -153,9 +153,11 @@ object_db_look_up( object_db_t *obj_db,
 {
 	object_db_rec_t *tmp = obj_db->head;
 	
-	for( ; tmp; tmp = tmp->next )
+	
+	for(  ; tmp != NULL ; tmp = tmp->next )
 	{
-		if( ptr == tmp )
+		//printf( "\n In object look up function - in loop " );
+		if( ptr == tmp->ptr )
 			return tmp;
 	}
 	return NULL;
@@ -256,3 +258,121 @@ void print_object_db( object_db_t *object_db )
 
 /* PHASE 2 OBJECT DATABASE
    ENDS HERE */
+
+/* ASSIGNMENT 3 STARTS HERE */
+void mld_dump_object_rec_detail( object_db_rec_t *obj_rec )
+{
+	int i=0,j=0;
+
+	//CHECKING WHETHER OBJECT RECORD EXISTS 
+	assert( obj_rec );
+
+	field_info_t *field_tmp = NULL;
+
+        field_tmp = obj_rec->struct_rec->fields;
+         
+        for( int j=1; j<=obj_rec->units; j++ )
+
+         { for( int i=0; i<obj_rec->struct_rec->n_fields; i++ )
+          { switch( field_tmp[i].dtype )
+           {
+ case UINT8 : printf( "%u\t", *(int *)( obj_rec->ptr + (j-1)*obj_rec->struct_rec->ds_size + field_tmp[i].offset ) );
+                                     break;             
+ case UINT32 : printf( "%u\t", *(int *)( obj_rec->ptr + (j-1)*obj_rec->struct_rec->ds_size + field_tmp[i].offset ) );
+                                     break;
+ case INT32 : printf( "%d\t", *(int *)( obj_rec->ptr + (j-1)*obj_rec->struct_rec->ds_size + field_tmp[i].offset ) );
+                                     break;
+ case CHAR : printf( "%s\t", (char*)(obj_rec->ptr + (j-1)*obj_rec->struct_rec->ds_size + field_tmp[i].offset) );
+                                        break; 
+ case OBJ_PTR : printf( "%p\t", (uintptr_t*)*(uintptr_t*)( obj_rec->ptr + (j-1)*obj_rec->struct_rec->ds_size + field_tmp[i].offset ) );
+                                        break;
+case FLOAT : printf( "%.2f\t",*( float*) ( obj_rec->ptr + (j-1)*obj_rec->struct_rec->ds_size + field_tmp[i].offset ) );
+                                        break;
+ case DOUBLE : printf( "%.2f\t",*( float*) ( obj_rec->ptr + (j-1)*obj_rec->struct_rec->ds_size + field_tmp[i].offset ) );
+                                        break;
+ case OBJ_STRUCT : printf( "%p\t", (uintptr_t*)*(uintptr_t*)( obj_rec->ptr + (j-1)*obj_rec->struct_rec->ds_size + field_tmp[i].offset ) );
+                                        break;
+          }
+         } 
+         printf( "\n" );
+        }       	
+}
+
+
+int delete_object( object_db_t* object_db, object_db_rec_t* obj_rec  )
+{
+	object_db_rec_t *object_rec_tmp_p = NULL, *object_rec_tmp = NULL;
+
+	/* CHECKING VALIDITY OF obj_rec */
+	assert( obj_rec );
+
+	/* VALDITATING WHETHER OBJECT DB IS NOT EMPTY */
+	if( !object_db->head )
+	{
+		printf( "Object database is empty\n" );
+		return -1;
+	}
+
+	/* IF THERE IS ONLY ONE OBJECT IN OBJECT DB */	
+	if ( object_db->head->next == NULL )
+	{
+		object_rec_tmp = object_db->head;
+		object_db->head = NULL;
+	}
+
+	else
+        {
+                object_rec_tmp_p = object_db->head;
+                object_rec_tmp = object_db->head->next;
+
+                /* IF FIRST OBJECT MATCHES */
+                if( object_rec_tmp_p == obj_rec )
+                {
+                        object_rec_tmp = object_db->head;
+                        object_db->head = object_db->head->next;
+                }
+                else
+                {
+                        do
+                        {
+                                if( object_rec_tmp == obj_rec )
+                                {
+                                        object_rec_tmp_p->next = object_rec_tmp->next;
+                                        break;
+                                }
+
+                                object_rec_tmp_p = object_rec_tmp;
+                                object_rec_tmp = object_rec_tmp->next;
+                        }while( object_rec_tmp );
+                }
+	}
+	
+	free( object_rec_tmp->ptr );
+
+	free( object_rec_tmp );
+
+	object_db->count--;
+
+	return 1;
+}
+
+int xfree ( void* ptr, object_db_t* object_db )
+{
+	/* CHECKING VALIDITY OF PTR */
+	assert( ptr );
+
+	/* VERIFYING THAT THE OBJECT DB RECORD
+	   FOR THIS OBJECT EXISTS IN OBJECT DB */
+	
+	object_db_rec_t *obj_rec = object_db_look_up( object_db, ptr );
+	if( obj_rec  == NULL )
+	{
+		printf( "This object does not exist in Object database\n" );
+		return -1;
+	}
+
+	printf( "\(((((((((((	OBJECT FOUND	)))))))))))" );
+	return delete_object( object_db, obj_rec );	
+}
+	
+/* ASSIGNMENT 3 ENDS HERE */	
