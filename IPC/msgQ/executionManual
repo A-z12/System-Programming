@@ -1,0 +1,7 @@
+Sender :
+1. gcc -g -c sender.c -o sender.o
+2. gcc -g sender.o -o sender -lrt
+
+Reciever :
+1. gcc -g -c reciever.c -o reciver.o
+2. gcc -g reciever.o -o reciever -lrt
